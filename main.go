@@ -41,6 +41,10 @@ func main() {
 		panic(err)
 	}
 
+	for _, container := range containers {
+		fmt.Println(container.Names)
+	}
+
 	c := config{}
 	d, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
