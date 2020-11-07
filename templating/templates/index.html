@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tunjicus</title>
+</head>
+<body>
+    <h1>Running apps:</h1>
+    <ul>
+        {{ range $key, $service := . }}
+            <li>
+                <a href="{{ $service.Url }}">{{ $service.Name }}</a>
+            </li>
+        {{ end }}
+    </ul>
+</body>
+</html>

@@ -1,7 +1,7 @@
 services:
     docker-test_adminer_1:
         name: Adminer
-        url: "localhost:9000"
+        url: "http://localhost:9000"
     fake_container:
         name: Imposter
         url: /not/real

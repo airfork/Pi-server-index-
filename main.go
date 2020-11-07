@@ -1,68 +1,23 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"io/ioutil"
-	"log"
-	"strings"
-
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
-	"gopkg.in/yaml.v2"
+    "fmt"
+    "log"
+    "net/http"
+    "pi-server-manager/config"
+    "pi-server-manager/templating"
 )
 
-type service struct {
-	Name string `yaml:"name"`
-	Url  string `yaml:"url"`
-}
-
-type config struct {
-	Services map[string]service `yaml:"services"`
-}
-
-func containerRunning(c string, containers []types.Container) bool {
-	for _, container := range containers {
-		if c == strings.Trim(container.Names[0], "/") {
-			return true
-		}
-	}
-	return false
-}
+const PORT = ":8000"
 
 func main() {
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
+    c, _ := config.ReadConfig("config.yaml")
+    for _, service := range c.Services {
+        fmt.Println("Url:", service.Url, "Name:", service.Name)
+    }
 
-	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
-	if err != nil {
-		panic(err)
-	}
+    http.HandleFunc("/", templating.Index)
 
-	for _, container := range containers {
-		fmt.Println(container.Names)
-	}
-
-	c := config{}
-	d, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	err = yaml.Unmarshal(d, &c)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	fmt.Println(c.Services)
-
-	runningApps := make(map[string]service)
-	for containerName := range c.Services {
-		if containerRunning(containerName, containers) {
-			runningApps[containerName] = c.Services[containerName]
-		}
-	}
-
-	fmt.Println(runningApps)
+    fmt.Println("Server starting on port", PORT)
+    log.Fatal(http.ListenAndServe(PORT, nil))
 }
