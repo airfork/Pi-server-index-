@@ -1,0 +1,27 @@
+{{define "content"}}
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome to tunjicus.com</h1>
+        <p class="lead">
+            This site hosts a bunch of random applications, check the list below for the running ones
+        </p>
+        <hr class="my-4">
+        <p>
+           Hosted on a Raspberry Pi 4 running Caddy Server and Docker. Click to learn more
+        </p>
+        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+    </div>
+    <h1>Running apps:</h1>
+    <div class="list-group list-group-flush">
+        {{range $key, $service := .Services}}
+            {{if gt (len $service.Description) 0}}
+                <a href="{{$service.Url}}" class="list-group-item list-group-item-action">
+                    {{$service.Name}} - {{$service.Description}}
+                </a>
+            {{else}}
+                <a href="{{$service.Url}}" class="list-group-item list-group-item-action">
+                    {{$service.Name}}
+                </a>
+            {{end}}
+        {{end}}
+    </div>
+{{end}}

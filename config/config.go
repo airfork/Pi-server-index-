@@ -13,20 +13,23 @@ import (
 type service struct {
     Name string `yaml:"name"`
     Url  string `yaml:"url"`
+    Description string `yaml:"description"`
 }
 
 type serviceTemplate struct {
     Name string
     Url template.URL
+    Description string
 }
 
-// Config holds the result of parsing our config.yaml file
-type Config struct {
+// config holds the result of parsing our config.yaml file
+type config struct {
     Services map[string]service `yaml:"services"`
 }
 
 type configTemplate struct {
     Services map[string]serviceTemplate
+    Nav bool
 }
 
 func containerRunning(c string, containers []types.Container) bool {
@@ -44,7 +47,7 @@ func ReadConfig(f string) (*configTemplate, error) {
         return nil, err
     }
 
-    c := &Config{}
+    c := &config{}
     err = yaml.Unmarshal(d, &c)
     if err != nil {
         return nil, err
@@ -57,13 +60,19 @@ func ReadConfig(f string) (*configTemplate, error) {
 
     ct := &configTemplate{
         Services: make(map[string]serviceTemplate),
+        Nav: true,
     }
 
     for containerName := range c.Services {
         if containerRunning(containerName, containers) {
-            name := c.Services[containerName].Name
+            name := strings.TrimSpace(c.Services[containerName].Name)
             url := c.Services[containerName].Url
-            ct.Services[containerName] = serviceTemplate{Name: name, Url: template.URL(url)}
+            desc := strings.TrimSpace(c.Services[containerName].Description)
+            ct.Services[containerName] = serviceTemplate{
+                Name: name,
+                Url: template.URL(url),
+                Description: desc,
+            }
         }
     }
 

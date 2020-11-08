@@ -2,6 +2,7 @@ services:
     docker-test_adminer_1:
         name: Adminer
         url: "http://localhost:9000"
-    fake_container:
-        name: Imposter
-        url: /not/real
+        description: An in browser database viewer
+    wiki_db_1:
+        name: Maria DB
+        url: "http://localhost:9000"
