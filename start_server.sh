@@ -10,3 +10,5 @@ fi
 
 go build -o server
 nohup ./server &> /dev/null &
+
+echo "Server successfully started"
