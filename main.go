@@ -23,6 +23,7 @@ func main() {
     r := chi.NewRouter()
 
     r.Get("/", templating.Index)
+    r.Get("/info", templating.Info)
     r.Get("/" + sc, stopSite)
 
     workDir, _ := os.Getwd()

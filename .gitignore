@@ -1,2 +1,4 @@
 server
 stopCode.txt
+config.yaml
+*.DS_Store

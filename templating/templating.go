@@ -9,8 +9,8 @@ import (
 func Index(w http.ResponseWriter, r *http.Request) {
     tmpl := template.Must(template.ParseFiles(
         "templates/layout.html",
-                    "templates/index.html",
-                    "templates/navbar.html",
+            "templates/index.html",
+            "templates/navbar.html",
         ))
     c, err := config.ReadConfig("config.yaml")
     if err != nil {
@@ -20,6 +20,21 @@ func Index(w http.ResponseWriter, r *http.Request) {
     }
 
     err = tmpl.ExecuteTemplate(w, "layout", c)
+    if err != nil {
+        _, _ = w.Write([]byte("Error parsing template"))
+    }
+}
+
+func Info(w http.ResponseWriter, r *http.Request) {
+    tmpl := template.Must(template.ParseFiles(
+    "templates/layout.html",
+            "templates/info.html",
+            "templates/navbar.html",
+    ))
+
+    data := make(map[string]bool)
+    data["Nav"] = true
+    err := tmpl.ExecuteTemplate(w, "layout", data)
     if err != nil {
         _, _ = w.Write([]byte("Error parsing template"))
     }

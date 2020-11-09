@@ -8,9 +8,9 @@
         <p>
            Hosted on a Raspberry Pi 4 running Caddy Server and Docker. Click to learn more
         </p>
-        <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+        <a class="btn btn-primary btn-lg" href="/info" role="button">Learn more</a>
     </div>
-    <h1>Running apps:</h1>
+    <h2>Running Applications</h2>
     <div class="list-group list-group-flush">
         {{range $key, $service := .Services}}
             {{if gt (len $service.Description) 0}}
