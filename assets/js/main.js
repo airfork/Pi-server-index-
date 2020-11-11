@@ -1,7 +1,7 @@
 'use strict';
 
 ws.onclose = (evt) => {
-    console.log("Closeed websocket connection");
+    console.log("Closed websocket connection");
     ws = null;
 }
 

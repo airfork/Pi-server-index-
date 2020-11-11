@@ -1,92 +1,73 @@
 package config
 
 import (
-    "context"
-    "github.com/docker/docker/api/types"
-    "github.com/docker/docker/client"
-    "gopkg.in/yaml.v3"
-    "html/template"
-    "io/ioutil"
-    "strings"
+	"context"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
+	"strings"
 )
 
 type Service struct {
-    Name string `yaml:"name"`
-    Url  string `yaml:"url"`
-    Description string `yaml:"description"`
+	Name        string `yaml:"name"`
+	Url         string `yaml:"url"`
+	Description string `yaml:"description"`
+	Running bool
 }
 
-type serviceTemplate struct {
-    Name string
-    Url template.URL
-    Description string
-    Running bool
-}
 
-// config holds the result of parsing our config.yaml file
-type config struct {
-    Services map[string]*Service `yaml:"services"`
-}
-
-type ConfigTemplate struct {
-    Services map[string]*serviceTemplate
+// Config holds the result of parsing our Config.yaml file
+type Config struct {
+	Services map[string]*Service `yaml:"services"`
 }
 
 func containerRunning(c string, containers []types.Container) bool {
-    for _, container := range containers {
-        if c == strings.Trim(container.Names[0], "/") {
-            return true
-        }
-    }
-    return false
+	for _, container := range containers {
+		if c == strings.Trim(container.Names[0], "/") {
+			return true
+		}
+	}
+	return false
 }
 
-func ReadConfig(f string) (*ConfigTemplate, error) {
-    d, err := ioutil.ReadFile(f)
-    if err != nil {
-        return nil, err
-    }
+func ReadConfig(f string) (*Config, error) {
+	d, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
 
-    c := &config{}
-    err = yaml.Unmarshal(d, &c)
-    if err != nil {
-        return nil, err
-    }
+	c := &Config{}
+	err = yaml.Unmarshal(d, &c)
+	if err != nil {
+		return nil, err
+	}
 
-    ct := &ConfigTemplate{
-        Services: make(map[string]*serviceTemplate),
-    }
+	rcs, err := getRunningContainers()
+	if err != nil {
+		return nil, err
+	}
 
-    rcs, err := getRunningContainers()
-    if err != nil {
-        return nil, err
-    }
+	for containerName, service := range c.Services {
+		service.Name = strings.TrimSpace(service.Name)
+		service.Url = strings.TrimSpace(service.Url)
+		service.Description = strings.TrimSpace(service.Description)
+		service.Running = containerRunning(containerName, rcs)
+	}
 
-    for containerName := range c.Services {
-        name := strings.TrimSpace(c.Services[containerName].Name)
-        url := c.Services[containerName].Url
-        desc := strings.TrimSpace(c.Services[containerName].Description)
-        ct.Services[containerName] = &serviceTemplate{
-            Name: name,
-            Url: template.URL(url),
-            Description: desc,
-            Running: containerRunning(containerName, rcs),
-        }
-    }
-
-    return ct, nil
+	return c, nil
 }
 
 func getRunningContainers() ([]types.Container, error) {
-    cli, err := client.NewEnvClient()
-    if err != nil {
-        return nil, err
-    }
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
 
-    containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
-    if err != nil {
-        return nil, err
-    }
+	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	if err != nil {
+		return nil, err
+	}
 
-    return containers, nil
+	return containers, nil
 }
