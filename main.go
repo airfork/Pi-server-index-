@@ -35,10 +35,7 @@ func main() {
 
     con := socket.Con{Cli: cli, Services: services}
 
-    tmpls := templating.T{Services: services, Host: "localhost" + PORT}
-    if os.Getenv("PI_PROD") == "" {
-        tmpls.Host = "tunjicus.com"
-    }
+    tmpls := templating.T{Services: services}
     sc, err := helpers.SetStopCode()
     if err != nil {
         panic("Failed to set stop code: " + err.Error())

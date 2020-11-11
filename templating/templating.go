@@ -4,12 +4,12 @@ import (
     "fmt"
     "html/template"
     "net/http"
+    "os"
     "pi-server-manager/config"
 )
 
 type T struct {
     Services *config.ConfigTemplate
-    Host string
 }
 
 func (t T) Index(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,11 @@ func (t T) Index(w http.ResponseWriter, r *http.Request) {
 
     data := make(map[string]interface{})
     data["Config"] = t.Services
-    data["ws"] = "ws://"+t.Host+"/socket"
+    if os.Getenv("PI_DEV") == "" {
+        data["ws"] = "wss://tunjicus.com/socket"
+    } else {
+        data["ws"] = "ws://"+r.Host+"/socket"
+    }
     data["Nav"] = true
 
     err := tmpl.ExecuteTemplate(w, "layout", data)
