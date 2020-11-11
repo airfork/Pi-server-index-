@@ -1,31 +1,37 @@
 package templating
 
 import (
+    "fmt"
     "html/template"
     "net/http"
     "pi-server-manager/config"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
+type T struct {
+    Services *config.ConfigTemplate
+    Host string
+}
+
+func (t T) Index(w http.ResponseWriter, r *http.Request) {
     tmpl := template.Must(template.ParseFiles(
         "templates/layout.html",
             "templates/index.html",
             "templates/navbar.html",
         ))
-    c, err := config.ReadConfig("config.yaml")
-    if err != nil {
-        w.WriteHeader(http.StatusInternalServerError)
-        _, _ = w.Write([]byte(err.Error()))
-        return
-    }
 
-    err = tmpl.ExecuteTemplate(w, "layout", c)
+    data := make(map[string]interface{})
+    data["Config"] = t.Services
+    data["ws"] = "ws://"+t.Host+"/socket"
+    data["Nav"] = true
+
+    err := tmpl.ExecuteTemplate(w, "layout", data)
     if err != nil {
+        fmt.Println(err)
         _, _ = w.Write([]byte("Error parsing template"))
     }
 }
 
-func Info(w http.ResponseWriter, r *http.Request) {
+func (t T) Info(w http.ResponseWriter, r *http.Request) {
     tmpl := template.Must(template.ParseFiles(
     "templates/layout.html",
             "templates/info.html",

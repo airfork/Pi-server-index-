@@ -10,7 +10,7 @@ import (
     "strings"
 )
 
-type service struct {
+type Service struct {
     Name string `yaml:"name"`
     Url  string `yaml:"url"`
     Description string `yaml:"description"`
@@ -20,16 +20,16 @@ type serviceTemplate struct {
     Name string
     Url template.URL
     Description string
+    Running bool
 }
 
 // config holds the result of parsing our config.yaml file
 type config struct {
-    Services map[string]service `yaml:"services"`
+    Services map[string]*Service `yaml:"services"`
 }
 
-type configTemplate struct {
-    Services map[string]serviceTemplate
-    Nav bool
+type ConfigTemplate struct {
+    Services map[string]*serviceTemplate
 }
 
 func containerRunning(c string, containers []types.Container) bool {
@@ -41,7 +41,7 @@ func containerRunning(c string, containers []types.Container) bool {
     return false
 }
 
-func ReadConfig(f string) (*configTemplate, error) {
+func ReadConfig(f string) (*ConfigTemplate, error) {
     d, err := ioutil.ReadFile(f)
     if err != nil {
         return nil, err
@@ -53,26 +53,24 @@ func ReadConfig(f string) (*configTemplate, error) {
         return nil, err
     }
 
-    containers, err := getRunningContainers()
+    ct := &ConfigTemplate{
+        Services: make(map[string]*serviceTemplate),
+    }
+
+    rcs, err := getRunningContainers()
     if err != nil {
         return nil, err
     }
 
-    ct := &configTemplate{
-        Services: make(map[string]serviceTemplate),
-        Nav: true,
-    }
-
     for containerName := range c.Services {
-        if containerRunning(containerName, containers) {
-            name := strings.TrimSpace(c.Services[containerName].Name)
-            url := c.Services[containerName].Url
-            desc := strings.TrimSpace(c.Services[containerName].Description)
-            ct.Services[containerName] = serviceTemplate{
-                Name: name,
-                Url: template.URL(url),
-                Description: desc,
-            }
+        name := strings.TrimSpace(c.Services[containerName].Name)
+        url := c.Services[containerName].Url
+        desc := strings.TrimSpace(c.Services[containerName].Description)
+        ct.Services[containerName] = &serviceTemplate{
+            Name: name,
+            Url: template.URL(url),
+            Description: desc,
+            Running: containerRunning(containerName, rcs),
         }
     }
 

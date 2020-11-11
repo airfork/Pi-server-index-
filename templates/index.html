@@ -1,4 +1,7 @@
 {{define "content"}}
+    <script>
+        let ws = new WebSocket("{{.ws}}");
+    </script>
     <div class="jumbotron">
         <h1 class="display-4">Welcome to tunjicus.com</h1>
         <p class="lead">
@@ -11,17 +14,20 @@
         <a class="btn btn-primary btn-lg" href="/info" role="button">Learn more</a>
     </div>
     <h2>Running Applications</h2>
-    <div class="list-group list-group-flush">
-        {{range $key, $service := .Services}}
-            {{if gt (len $service.Description) 0}}
-                <a href="{{$service.Url}}" class="list-group-item list-group-item-action">
-                    {{$service.Name}} - {{$service.Description}}
-                </a>
-            {{else}}
-                <a href="{{$service.Url}}" class="list-group-item list-group-item-action">
-                    {{$service.Name}}
-                </a>
+    <div id="containerList" class="list-group list-group-flush">
+        {{range $key, $service := .Config.Services}}
+            {{if $service.Running}}
+                {{if gt (len $service.Description) 0}}
+                    <a id="{{$key}}" href="{{$service.Url}}" class="list-group-item list-group-item-action">
+                        {{$service.Name}} - {{$service.Description}}
+                    </a>
+                {{else}}
+                    <a id="{{$key}}" href="{{$service.Url}}" class="list-group-item list-group-item-action">
+                        {{$service.Name}}
+                    </a>
+                {{end}}
             {{end}}
         {{end}}
     </div>
+    <script src="/assets/js/main.js"></script>
 {{end}}

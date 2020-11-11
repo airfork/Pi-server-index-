@@ -6,3 +6,6 @@ services:
     wiki_db_1:
         name: Maria DB
         url: "http://localhost:9000"
+    pi-server-manager_jenkins_1:
+        name: Jenkins
+        url: "http://localhost:8080"
